@@ -1,0 +1,44 @@
+#!/usr/bin/env bash
+set -e
+cd "$(dirname "$0")/.."
+
+CLEAN=0
+for arg in "$@"; do
+  if [ "$arg" == "-c" ] || [ "$arg" == "--clean" ]; then
+    CLEAN=1
+  fi
+done
+
+if [ "$CLEAN" == "1" ]; then
+  COMPILER_DIR="../javapurs"
+  echo "=== Recompiling ${COMPILER_DIR} ==="
+  (cd "${COMPILER_DIR}" && spago build) || { echo "Compiler build failed"; exit 1; }
+fi
+
+# Remove cache for safety
+rm -rf output
+rm -rf java_output
+mkdir -p java_output
+
+# If spago.java.yaml exists, use it, else hope spago.yaml is enough
+if [ -f "spago.java.yaml" ]; then
+  rm -f spago.yaml
+  ln -s spago.java.yaml spago.yaml
+fi
+
+echo "=== Building project with spago ==="
+spago build || { echo "Spago build failed"; exit 1; }
+
+echo "=== Generating Java code with javapurs ==="
+node ../javapurs/bin/javapurs.js --main Test.Main || exit 1
+
+echo "=== Running Java test script ==="
+cd java_output
+if [ -f "MainRun.java" ]; then
+    javac MainRun.java
+    java MainRun
+else
+    echo "No java_output/MainRun.java found."
+    exit 1
+fi
+echo -e "\n✅ Tests passed successfully!"
