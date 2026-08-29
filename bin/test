@@ -30,7 +30,7 @@ echo "=== Building project with spago ==="
 spago build || { echo "Spago build failed"; exit 1; }
 
 echo "=== Generating Java code with javapurs ==="
-node ../javapurs/bin/javapurs.js --main Test.Main || exit 1
+../javapurs/bin/javapurs --main Test.Main || exit 1
 
 echo "=== Running Java test script ==="
 cd java_output
