@@ -13,3 +13,6 @@ bower_components
 node_modules
 package-lock.json
 *.lock
+java_output/
+classes/
+.spago/
