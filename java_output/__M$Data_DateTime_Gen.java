@@ -1,0 +1,8 @@
+public class __M$Data_DateTime_Gen {
+    public static final Object FFI_STUB = new java.util.function.Function<Object, Object>() {
+        public Object apply(Object arg) { throw new UnsupportedOperationException("Missing Java FFI in Data.DateTime.Gen"); }
+    };
+
+
+public static final Object genDateTime = (java.util.function.Function<Object, Object>) (dictMonadGen_0_i0) -> { Object Bind1_1_i1 = ((java.util.function.Function<Object, Object>) (((java.util.Map<String, Object>) ((java.util.function.Function<Object, Object>) (((java.util.Map<String, Object>) dictMonadGen_0_i0).get("Monad0"))).apply(null /* TODO: PrimUndefined */)).get("Bind1"))).apply(null /* TODO: PrimUndefined */); return ((java.util.function.Function<Object, Object>) (((java.util.function.Function<Object, Object>) (((java.util.Map<String, Object>) ((java.util.function.Function<Object, Object>) (((java.util.Map<String, Object>) Bind1_1_i1).get("Apply0"))).apply(null /* TODO: PrimUndefined */)).get("apply"))).apply(((java.util.function.Function<Object, Object>) (((java.util.function.Function<Object, Object>) (((java.util.Map<String, Object>) ((java.util.function.Function<Object, Object>) (((java.util.Map<String, Object>) ((java.util.function.Function<Object, Object>) (((java.util.Map<String, Object>) Bind1_1_i1).get("Apply0"))).apply(null /* TODO: PrimUndefined */)).get("Functor0"))).apply(null /* TODO: PrimUndefined */)).get("map"))).apply(__M$Data_DateTime.DateTime))).apply(((java.util.function.Function<Object, Object>) (__M$Data_Date_Gen.genDate)).apply(dictMonadGen_0_i0))))).apply(((java.util.function.Function<Object, Object>) (__M$Data_Time_Gen.genTime)).apply(dictMonadGen_0_i0)); };
+}

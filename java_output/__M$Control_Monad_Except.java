@@ -1,0 +1,10 @@
+public class __M$Control_Monad_Except {
+    public static final Object FFI_STUB = new java.util.function.Function<Object, Object>() {
+        public Object apply(Object arg) { throw new UnsupportedOperationException("Missing Java FFI in Control.Monad.Except"); }
+    };
+
+
+public static final Object withExcept = ((java.util.function.Function<Object, Object>) (__M$Control_Monad_Except_Trans.withExceptT)).apply(__M$Data_Identity.functorIdentity);
+public static final Object runExcept = ((java.util.function.Function<Object, Object>) (((java.util.function.Function<Object, Object>) (((java.util.function.Function<Object, Object>) (__M$Control_Semigroupoid.compose)).apply(__M$Control_Semigroupoid.semigroupoidFn))).apply(((java.util.function.Function<Object, Object>) (__M$Data_Newtype.unwrap)).apply(null /* TODO: PrimUndefined */)))).apply(__M$Control_Monad_Except_Trans.runExceptT);
+public static final Object mapExcept = (java.util.function.Function<Object, Object>) (f_0_i0) -> { Object __local_var_1_i1 = ((java.util.function.Function<Object, Object>) (((java.util.function.Function<Object, Object>) (((java.util.function.Function<Object, Object>) (__M$Control_Semigroupoid.compose)).apply(__M$Control_Semigroupoid.semigroupoidFn))).apply(__M$Data_Identity.Identity))).apply(((java.util.function.Function<Object, Object>) (((java.util.function.Function<Object, Object>) (((java.util.function.Function<Object, Object>) (__M$Control_Semigroupoid.compose)).apply(__M$Control_Semigroupoid.semigroupoidFn))).apply(f_0_i0))).apply(((java.util.function.Function<Object, Object>) (__M$Data_Newtype.unwrap)).apply(null /* TODO: PrimUndefined */))); return (java.util.function.Function<Object, Object>) (v_2_i2) -> { return ((java.util.function.Function<Object, Object>) (__local_var_1_i1)).apply(v_2_i2); }; };
+}

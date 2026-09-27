@@ -1,0 +1,9 @@
+public class __M$Control_Comonad_Trans_Class {
+    public static final Object FFI_STUB = new java.util.function.Function<Object, Object>() {
+        public Object apply(Object arg) { throw new UnsupportedOperationException("Missing Java FFI in Control.Comonad.Trans.Class"); }
+    };
+
+
+public static final Object lower = (java.util.function.Function<Object, Object>) (dict_0_i0) -> { return ((java.util.Map<String, Object>) dict_0_i0).get("lower"); };
+public static final Object comonadTransIdentityT = (new java.util.function.Supplier<Object>() { public Object get() { final Object __field0 = (java.util.function.Function<Object, Object>) (dictComonad_0_i0) -> { return __M$Control_Monad_Identity_Trans.runIdentityT; }; return new __Record$6c_6f_77_65_72_O(new String[]{"lower"}, __field0); } }).get();
+}

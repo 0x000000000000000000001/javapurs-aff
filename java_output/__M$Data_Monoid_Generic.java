@@ -1,0 +1,13 @@
+public class __M$Data_Monoid_Generic {
+    public static final Object FFI_STUB = new java.util.function.Function<Object, Object>() {
+        public Object apply(Object arg) { throw new UnsupportedOperationException("Missing Java FFI in Data.Monoid.Generic"); }
+    };
+
+
+public static final Object genericMonoidNoArguments = (new java.util.function.Supplier<Object>() { public Object get() { final Object __field0 = __M$Data_Generic_Rep.__singleton$NoArguments.value; return new __Record$67_65_6e_65_72_69_63_4d_65_6d_70_74_79_27_O(new String[]{"genericMempty'"}, __field0); } }).get();
+public static final Object genericMonoidArgument = (java.util.function.Function<Object, Object>) (dictMonoid_0_i0) -> { return (new java.util.function.Supplier<Object>() { public Object get() { final Object __field0 = ((java.util.Map<String, Object>) dictMonoid_0_i0).get("mempty"); return new __Record$67_65_6e_65_72_69_63_4d_65_6d_70_74_79_27_O(new String[]{"genericMempty'"}, __field0); } }).get(); };
+public static final Object genericMemptyprime = (java.util.function.Function<Object, Object>) (dict_0_i0) -> { return ((java.util.Map<String, Object>) dict_0_i0).get("genericMempty'"); };
+public static final Object genericMonoidConstructor = (java.util.function.Function<Object, Object>) (dictGenericMonoid_0_i0) -> { return (new java.util.function.Supplier<Object>() { public Object get() { final Object __field0 = ((java.util.Map<String, Object>) dictGenericMonoid_0_i0).get("genericMempty'"); return new __Record$67_65_6e_65_72_69_63_4d_65_6d_70_74_79_27_O(new String[]{"genericMempty'"}, __field0); } }).get(); };
+public static final Object genericMonoidProduct = (java.util.function.Function<Object, Object>) (dictGenericMonoid_0_i0) -> { return (java.util.function.Function<Object, Object>) (dictGenericMonoid1_1_i1) -> { return (new java.util.function.Supplier<Object>() { public Object get() { final Object __field0 = new __M$Data_Generic_Rep.Product(((java.util.Map<String, Object>) dictGenericMonoid_0_i0).get("genericMempty'"), ((java.util.Map<String, Object>) dictGenericMonoid1_1_i1).get("genericMempty'")); return new __Record$67_65_6e_65_72_69_63_4d_65_6d_70_74_79_27_O(new String[]{"genericMempty'"}, __field0); } }).get(); }; };
+public static final Object genericMempty = (java.util.function.Function<Object, Object>) (dictGeneric_0_i0) -> { return (java.util.function.Function<Object, Object>) (dictGenericMonoid_1_i1) -> { return ((java.util.function.Function<Object, Object>) (((java.util.Map<String, Object>) dictGeneric_0_i0).get("to"))).apply(((java.util.Map<String, Object>) dictGenericMonoid_1_i1).get("genericMempty'")); }; };
+}
