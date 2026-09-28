@@ -7,7 +7,7 @@ public class __M$Data_Eq {
     public static Object eqIntImpl = (java.util.function.Function<Object, Object>) (a) -> (java.util.function.Function<Object, Object>) (b) -> ((Integer) a).equals((Integer) b);
     public static Object eqStringImpl = (java.util.function.Function<Object, Object>) (a) -> (java.util.function.Function<Object, Object>) (b) -> ((String) a).equals((String) b);
     public static Object eqCharImpl = (java.util.function.Function<Object, Object>) (a) -> (java.util.function.Function<Object, Object>) (b) -> ((String) a).equals((String) b);
-    public static Object eqNumberImpl = (java.util.function.Function<Object, Object>) (a) -> (java.util.function.Function<Object, Object>) (b) -> ((Double) a).equals((Double) b);
+    public static Object eqNumberImpl = (java.util.function.Function<Object, Object>) (a) -> (java.util.function.Function<Object, Object>) (b) -> ((Number) a).doubleValue() == ((Number) b).doubleValue();
     public static Object eqArrayImpl = (java.util.function.Function<Object, Object>) (f) -> (java.util.function.Function<Object, Object>) (xs) -> (java.util.function.Function<Object, Object>) (ys) -> {
         Object[] arr1 = (Object[]) xs;
         Object[] arr2 = (Object[]) ys;
