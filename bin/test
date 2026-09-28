@@ -37,7 +37,7 @@ cd java_output
 if [ -f "MainRun.java" ]; then
     javac MainRun.java
     cd ..
-    java -cp java_output MainRun
+    java -Xss8m -cp java_output MainRun
 else
     echo "No java_output/MainRun.java found."
     exit 1
