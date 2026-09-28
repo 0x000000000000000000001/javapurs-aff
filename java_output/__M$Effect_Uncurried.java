@@ -2,46 +2,94 @@ public class __M$Effect_Uncurried {
     public static final Object FFI_STUB = new java.util.function.Function<Object, Object>() {
         public Object apply(Object arg) { throw new UnsupportedOperationException("Missing Java FFI in Effect.Uncurried"); }
     };
-    public static Object mkEffectFn1 = FFI_STUB;
-    public static Object mkEffectFn1(Object... args) { throw new UnsupportedOperationException("Missing Java FFI: Effect.Uncurried.mkEffectFn1"); }
-    public static Object mkEffectFn10 = FFI_STUB;
-    public static Object mkEffectFn10(Object... args) { throw new UnsupportedOperationException("Missing Java FFI: Effect.Uncurried.mkEffectFn10"); }
-    public static Object mkEffectFn2 = FFI_STUB;
-    public static Object mkEffectFn2(Object... args) { throw new UnsupportedOperationException("Missing Java FFI: Effect.Uncurried.mkEffectFn2"); }
-    public static Object mkEffectFn3 = FFI_STUB;
-    public static Object mkEffectFn3(Object... args) { throw new UnsupportedOperationException("Missing Java FFI: Effect.Uncurried.mkEffectFn3"); }
-    public static Object mkEffectFn4 = FFI_STUB;
-    public static Object mkEffectFn4(Object... args) { throw new UnsupportedOperationException("Missing Java FFI: Effect.Uncurried.mkEffectFn4"); }
-    public static Object mkEffectFn5 = FFI_STUB;
-    public static Object mkEffectFn5(Object... args) { throw new UnsupportedOperationException("Missing Java FFI: Effect.Uncurried.mkEffectFn5"); }
-    public static Object mkEffectFn6 = FFI_STUB;
-    public static Object mkEffectFn6(Object... args) { throw new UnsupportedOperationException("Missing Java FFI: Effect.Uncurried.mkEffectFn6"); }
-    public static Object mkEffectFn7 = FFI_STUB;
-    public static Object mkEffectFn7(Object... args) { throw new UnsupportedOperationException("Missing Java FFI: Effect.Uncurried.mkEffectFn7"); }
-    public static Object mkEffectFn8 = FFI_STUB;
-    public static Object mkEffectFn8(Object... args) { throw new UnsupportedOperationException("Missing Java FFI: Effect.Uncurried.mkEffectFn8"); }
-    public static Object mkEffectFn9 = FFI_STUB;
-    public static Object mkEffectFn9(Object... args) { throw new UnsupportedOperationException("Missing Java FFI: Effect.Uncurried.mkEffectFn9"); }
-    public static Object runEffectFn1 = FFI_STUB;
-    public static Object runEffectFn1(Object... args) { throw new UnsupportedOperationException("Missing Java FFI: Effect.Uncurried.runEffectFn1"); }
-    public static Object runEffectFn10 = FFI_STUB;
-    public static Object runEffectFn10(Object... args) { throw new UnsupportedOperationException("Missing Java FFI: Effect.Uncurried.runEffectFn10"); }
-    public static Object runEffectFn2 = FFI_STUB;
-    public static Object runEffectFn2(Object... args) { throw new UnsupportedOperationException("Missing Java FFI: Effect.Uncurried.runEffectFn2"); }
-    public static Object runEffectFn3 = FFI_STUB;
-    public static Object runEffectFn3(Object... args) { throw new UnsupportedOperationException("Missing Java FFI: Effect.Uncurried.runEffectFn3"); }
-    public static Object runEffectFn4 = FFI_STUB;
-    public static Object runEffectFn4(Object... args) { throw new UnsupportedOperationException("Missing Java FFI: Effect.Uncurried.runEffectFn4"); }
-    public static Object runEffectFn5 = FFI_STUB;
-    public static Object runEffectFn5(Object... args) { throw new UnsupportedOperationException("Missing Java FFI: Effect.Uncurried.runEffectFn5"); }
-    public static Object runEffectFn6 = FFI_STUB;
-    public static Object runEffectFn6(Object... args) { throw new UnsupportedOperationException("Missing Java FFI: Effect.Uncurried.runEffectFn6"); }
-    public static Object runEffectFn7 = FFI_STUB;
-    public static Object runEffectFn7(Object... args) { throw new UnsupportedOperationException("Missing Java FFI: Effect.Uncurried.runEffectFn7"); }
-    public static Object runEffectFn8 = FFI_STUB;
-    public static Object runEffectFn8(Object... args) { throw new UnsupportedOperationException("Missing Java FFI: Effect.Uncurried.runEffectFn8"); }
-    public static Object runEffectFn9 = FFI_STUB;
-    public static Object runEffectFn9(Object... args) { throw new UnsupportedOperationException("Missing Java FFI: Effect.Uncurried.runEffectFn9"); }
+    // FFI provided by ../javapurs-effect/src/Effect/Uncurried.java
+    // EffectFnN shares the backend's curried representation, like
+    // Data.Function.Uncurried: making one is the identity and running one
+    // applies the chain, leaving the effect (Supplier) ready to run.
+    @SuppressWarnings("unchecked")
+    private static Object __effectFnApply(Object fn, Object... args) {
+        Object result = fn;
+        for (Object arg : args) result = ((java.util.function.Function<Object, Object>) result).apply(arg);
+        return result;
+    }
+
+    public static Object mkEffectFn1 = (java.util.function.Function<Object, Object>) (fn) -> fn;
+    public static Object mkEffectFn2 = (java.util.function.Function<Object, Object>) (fn) -> fn;
+    public static Object mkEffectFn3 = (java.util.function.Function<Object, Object>) (fn) -> fn;
+    public static Object mkEffectFn4 = (java.util.function.Function<Object, Object>) (fn) -> fn;
+    public static Object mkEffectFn5 = (java.util.function.Function<Object, Object>) (fn) -> fn;
+    public static Object mkEffectFn6 = (java.util.function.Function<Object, Object>) (fn) -> fn;
+    public static Object mkEffectFn7 = (java.util.function.Function<Object, Object>) (fn) -> fn;
+    public static Object mkEffectFn8 = (java.util.function.Function<Object, Object>) (fn) -> fn;
+    public static Object mkEffectFn9 = (java.util.function.Function<Object, Object>) (fn) -> fn;
+    public static Object mkEffectFn10 = (java.util.function.Function<Object, Object>) (fn) -> fn;
+
+    public static Object runEffectFn1 = (java.util.function.Function<Object, Object>) (fn) ->
+        (java.util.function.Function<Object, Object>) (a) -> __effectFnApply(fn, a);
+    public static Object runEffectFn2 = (java.util.function.Function<Object, Object>) (fn) ->
+        (java.util.function.Function<Object, Object>) (a) ->
+        (java.util.function.Function<Object, Object>) (b) -> __effectFnApply(fn, a, b);
+    public static Object runEffectFn3 = (java.util.function.Function<Object, Object>) (fn) ->
+        (java.util.function.Function<Object, Object>) (a) ->
+        (java.util.function.Function<Object, Object>) (b) ->
+        (java.util.function.Function<Object, Object>) (c) -> __effectFnApply(fn, a, b, c);
+    public static Object runEffectFn4 = (java.util.function.Function<Object, Object>) (fn) ->
+        (java.util.function.Function<Object, Object>) (a) ->
+        (java.util.function.Function<Object, Object>) (b) ->
+        (java.util.function.Function<Object, Object>) (c) ->
+        (java.util.function.Function<Object, Object>) (d) -> __effectFnApply(fn, a, b, c, d);
+    public static Object runEffectFn5 = (java.util.function.Function<Object, Object>) (fn) ->
+        (java.util.function.Function<Object, Object>) (a) ->
+        (java.util.function.Function<Object, Object>) (b) ->
+        (java.util.function.Function<Object, Object>) (c) ->
+        (java.util.function.Function<Object, Object>) (d) ->
+        (java.util.function.Function<Object, Object>) (e) -> __effectFnApply(fn, a, b, c, d, e);
+    public static Object runEffectFn6 = (java.util.function.Function<Object, Object>) (fn) ->
+        (java.util.function.Function<Object, Object>) (a) ->
+        (java.util.function.Function<Object, Object>) (b) ->
+        (java.util.function.Function<Object, Object>) (c) ->
+        (java.util.function.Function<Object, Object>) (d) ->
+        (java.util.function.Function<Object, Object>) (e) ->
+        (java.util.function.Function<Object, Object>) (g) -> __effectFnApply(fn, a, b, c, d, e, g);
+    public static Object runEffectFn7 = (java.util.function.Function<Object, Object>) (fn) ->
+        (java.util.function.Function<Object, Object>) (a) ->
+        (java.util.function.Function<Object, Object>) (b) ->
+        (java.util.function.Function<Object, Object>) (c) ->
+        (java.util.function.Function<Object, Object>) (d) ->
+        (java.util.function.Function<Object, Object>) (e) ->
+        (java.util.function.Function<Object, Object>) (g) ->
+        (java.util.function.Function<Object, Object>) (h) -> __effectFnApply(fn, a, b, c, d, e, g, h);
+    public static Object runEffectFn8 = (java.util.function.Function<Object, Object>) (fn) ->
+        (java.util.function.Function<Object, Object>) (a) ->
+        (java.util.function.Function<Object, Object>) (b) ->
+        (java.util.function.Function<Object, Object>) (c) ->
+        (java.util.function.Function<Object, Object>) (d) ->
+        (java.util.function.Function<Object, Object>) (e) ->
+        (java.util.function.Function<Object, Object>) (g) ->
+        (java.util.function.Function<Object, Object>) (h) ->
+        (java.util.function.Function<Object, Object>) (i) -> __effectFnApply(fn, a, b, c, d, e, g, h, i);
+    public static Object runEffectFn9 = (java.util.function.Function<Object, Object>) (fn) ->
+        (java.util.function.Function<Object, Object>) (a) ->
+        (java.util.function.Function<Object, Object>) (b) ->
+        (java.util.function.Function<Object, Object>) (c) ->
+        (java.util.function.Function<Object, Object>) (d) ->
+        (java.util.function.Function<Object, Object>) (e) ->
+        (java.util.function.Function<Object, Object>) (g) ->
+        (java.util.function.Function<Object, Object>) (h) ->
+        (java.util.function.Function<Object, Object>) (i) ->
+        (java.util.function.Function<Object, Object>) (j) -> __effectFnApply(fn, a, b, c, d, e, g, h, i, j);
+    public static Object runEffectFn10 = (java.util.function.Function<Object, Object>) (fn) ->
+        (java.util.function.Function<Object, Object>) (a) ->
+        (java.util.function.Function<Object, Object>) (b) ->
+        (java.util.function.Function<Object, Object>) (c) ->
+        (java.util.function.Function<Object, Object>) (d) ->
+        (java.util.function.Function<Object, Object>) (e) ->
+        (java.util.function.Function<Object, Object>) (g) ->
+        (java.util.function.Function<Object, Object>) (h) ->
+        (java.util.function.Function<Object, Object>) (i) ->
+        (java.util.function.Function<Object, Object>) (j) ->
+        (java.util.function.Function<Object, Object>) (k) -> __effectFnApply(fn, a, b, c, d, e, g, h, i, j, k);
+
 
 public static final Object semigroupEffectFn9 = (java.util.function.Function<Object, Object>) (dictSemigroup_0_i0) -> { Object semigroupEffect_1_i1 = ((java.util.function.Function<Object, Object>) (__M$Effect.semigroupEffect)).apply(dictSemigroup_0_i0); return (new java.util.function.Supplier<Object>() { public Object get() { final Object __field0 = (java.util.function.Function<Object, Object>) (f1_2_i2) -> { return (java.util.function.Function<Object, Object>) (f2_3_i3) -> { return (java.util.function.Function<Object, Object>) (a_4_i4) -> (java.util.function.Function<Object, Object>) (__local_var_5_i5) -> (java.util.function.Function<Object, Object>) (__local_var_6_i6) -> (java.util.function.Function<Object, Object>) (__local_var_7_i7) -> (java.util.function.Function<Object, Object>) (__local_var_8_i8) -> (java.util.function.Function<Object, Object>) (__local_var_9_i9) -> (java.util.function.Function<Object, Object>) (__local_var_10_i10) -> (java.util.function.Function<Object, Object>) (__local_var_11_i11) -> (java.util.function.Function<Object, Object>) (__local_var_12_i12) -> { return ((java.util.function.Function<Object, Object>) (((java.util.function.Function<Object, Object>) (((java.util.Map<String, Object>) semigroupEffect_1_i1).get("append"))).apply(((java.util.function.Function<Object, Object>) (((java.util.function.Function<Object, Object>) (((java.util.function.Function<Object, Object>) (((java.util.function.Function<Object, Object>) (((java.util.function.Function<Object, Object>) (((java.util.function.Function<Object, Object>) (((java.util.function.Function<Object, Object>) (((java.util.function.Function<Object, Object>) (((java.util.function.Function<Object, Object>) (f1_2_i2)).apply(a_4_i4))).apply(__local_var_5_i5))).apply(__local_var_6_i6))).apply(__local_var_7_i7))).apply(__local_var_8_i8))).apply(__local_var_9_i9))).apply(__local_var_10_i10))).apply(__local_var_11_i11))).apply(__local_var_12_i12)))).apply(((java.util.function.Function<Object, Object>) (((java.util.function.Function<Object, Object>) (((java.util.function.Function<Object, Object>) (((java.util.function.Function<Object, Object>) (((java.util.function.Function<Object, Object>) (((java.util.function.Function<Object, Object>) (((java.util.function.Function<Object, Object>) (((java.util.function.Function<Object, Object>) (((java.util.function.Function<Object, Object>) (f2_3_i3)).apply(a_4_i4))).apply(__local_var_5_i5))).apply(__local_var_6_i6))).apply(__local_var_7_i7))).apply(__local_var_8_i8))).apply(__local_var_9_i9))).apply(__local_var_10_i10))).apply(__local_var_11_i11))).apply(__local_var_12_i12)); }; }; }; return new __Record$61_70_70_65_6e_64_O(new String[]{"append"}, __field0); } }).get(); };
 public static final Object semigroupEffectFn8 = (java.util.function.Function<Object, Object>) (dictSemigroup_0_i0) -> { Object semigroupEffect_1_i1 = ((java.util.function.Function<Object, Object>) (__M$Effect.semigroupEffect)).apply(dictSemigroup_0_i0); return (new java.util.function.Supplier<Object>() { public Object get() { final Object __field0 = (java.util.function.Function<Object, Object>) (f1_2_i2) -> { return (java.util.function.Function<Object, Object>) (f2_3_i3) -> { return (java.util.function.Function<Object, Object>) (a_4_i4) -> (java.util.function.Function<Object, Object>) (__local_var_5_i5) -> (java.util.function.Function<Object, Object>) (__local_var_6_i6) -> (java.util.function.Function<Object, Object>) (__local_var_7_i7) -> (java.util.function.Function<Object, Object>) (__local_var_8_i8) -> (java.util.function.Function<Object, Object>) (__local_var_9_i9) -> (java.util.function.Function<Object, Object>) (__local_var_10_i10) -> (java.util.function.Function<Object, Object>) (__local_var_11_i11) -> { return ((java.util.function.Function<Object, Object>) (((java.util.function.Function<Object, Object>) (((java.util.Map<String, Object>) semigroupEffect_1_i1).get("append"))).apply(((java.util.function.Function<Object, Object>) (((java.util.function.Function<Object, Object>) (((java.util.function.Function<Object, Object>) (((java.util.function.Function<Object, Object>) (((java.util.function.Function<Object, Object>) (((java.util.function.Function<Object, Object>) (((java.util.function.Function<Object, Object>) (((java.util.function.Function<Object, Object>) (f1_2_i2)).apply(a_4_i4))).apply(__local_var_5_i5))).apply(__local_var_6_i6))).apply(__local_var_7_i7))).apply(__local_var_8_i8))).apply(__local_var_9_i9))).apply(__local_var_10_i10))).apply(__local_var_11_i11)))).apply(((java.util.function.Function<Object, Object>) (((java.util.function.Function<Object, Object>) (((java.util.function.Function<Object, Object>) (((java.util.function.Function<Object, Object>) (((java.util.function.Function<Object, Object>) (((java.util.function.Function<Object, Object>) (((java.util.function.Function<Object, Object>) (((java.util.function.Function<Object, Object>) (f2_3_i3)).apply(a_4_i4))).apply(__local_var_5_i5))).apply(__local_var_6_i6))).apply(__local_var_7_i7))).apply(__local_var_8_i8))).apply(__local_var_9_i9))).apply(__local_var_10_i10))).apply(__local_var_11_i11)); }; }; }; return new __Record$61_70_70_65_6e_64_O(new String[]{"append"}, __field0); } }).get(); };

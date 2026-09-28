@@ -10,7 +10,8 @@ public class __M$Data_Lazy {
         Object[] pending = new Object[]{ thunk };
         return (java.util.function.Supplier<Object>) () -> {
             if (pending[0] != null) {
-                value[0] = ((java.util.function.Supplier<Object>) pending[0]).get();
+                // The JavaScript thunk is a (Unit -> a) function.
+                value[0] = ((java.util.function.Function<Object, Object>) pending[0]).apply(null);
                 pending[0] = null;
             }
             return value[0];

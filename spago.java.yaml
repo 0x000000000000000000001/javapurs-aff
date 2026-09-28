@@ -119,6 +119,8 @@ workspace:
       path: "../javapurs-run"
     spec:
       path: "../javapurs-spec"
+    spec-discovery:
+      path: "../javapurs-spec-discovery"
     st:
       path: "../javapurs-st"
     strings:
