@@ -36,7 +36,8 @@ echo "=== Running Java test script ==="
 cd java_output
 if [ -f "MainRun.java" ]; then
     javac MainRun.java
-    java MainRun
+    cd ..
+    java -cp java_output MainRun
 else
     echo "No java_output/MainRun.java found."
     exit 1
