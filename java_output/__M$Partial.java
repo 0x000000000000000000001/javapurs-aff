@@ -8,6 +8,8 @@ public class __M$Partial {
     };
 
 
-public static final Object crashWith = (java.util.function.Function<Object, Object>) (_dollar___unused_0_i0) -> { return __M$Partial._crashWith; };
-public static final Object crash = (java.util.function.Function<Object, Object>) (_dollar___unused_0_i0) -> { return ((java.util.function.Function<Object, Object>) (__M$Partial._crashWith)).apply("Partial.crash: partial function"); };
+public static final Object crashWith = __init$crashWith();
+    private static Object __init$crashWith() { return (java.util.function.Function<Object, Object>) (_dollar___unused_0_i0) -> { return __M$Partial._crashWith; }; }
+public static final Object crash = __init$crash();
+    private static Object __init$crash() { return (java.util.function.Function<Object, Object>) (_dollar___unused_0_i0) -> { return ((java.util.function.Function<Object, Object>) (__M$Partial._crashWith)).apply("Partial.crash: partial function"); }; }
 }

@@ -94,6 +94,8 @@ public class __M$Data_Function_Uncurried {
         (java.util.function.Function<Object, Object>) (k) -> __uncurriedApply(fn, a, b, c, d, e, g, h, i, j, k);
 
 
-public static final Object runFn1 = (java.util.function.Function<Object, Object>) (f_0_i0) -> { return f_0_i0; };
-public static final Object mkFn1 = (java.util.function.Function<Object, Object>) (f_0_i0) -> { return f_0_i0; };
+public static final Object runFn1 = __init$runFn1();
+    private static Object __init$runFn1() { return (java.util.function.Function<Object, Object>) (f_0_i0) -> { return f_0_i0; }; }
+public static final Object mkFn1 = __init$mkFn1();
+    private static Object __init$mkFn1() { return (java.util.function.Function<Object, Object>) (f_0_i0) -> { return f_0_i0; }; }
 }

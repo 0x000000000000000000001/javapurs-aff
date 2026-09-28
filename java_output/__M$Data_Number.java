@@ -43,14 +43,24 @@ public class __M$Data_Number {
     };
 
 
-public static final Object tau = 6.283185307179586;
-public static final Object sqrt2 = 1.4142135623730951;
-public static final Object sqrt1_2 = 0.7071067811865476;
-public static final Object pi = 3.141592653589793;
-public static final Object log2e = 1.4426950408889634;
-public static final Object log10e = 0.4342944819032518;
-public static final Object ln2 = 0.6931471805599453;
-public static final Object ln10 = 2.302585092994046;
-public static final Object fromString = (java.util.function.Function<Object, Object>) (str_0_i0) -> { return ((java.util.function.Function<Object, Object>) (((java.util.function.Function<Object, Object>) (((java.util.function.Function<Object, Object>) (((java.util.function.Function<Object, Object>) (__M$Data_Number.fromStringImpl)).apply(str_0_i0))).apply(__M$Data_Number.isFinite))).apply(__M$Data_Maybe.Just))).apply(__M$Data_Maybe.__singleton$Nothing.value); };
-public static final Object e = 2.718281828459045;
+public static final Object tau = __init$tau();
+    private static Object __init$tau() { return 6.283185307179586; }
+public static final Object sqrt2 = __init$sqrt2();
+    private static Object __init$sqrt2() { return 1.4142135623730951; }
+public static final Object sqrt1_2 = __init$sqrt1_2();
+    private static Object __init$sqrt1_2() { return 0.7071067811865476; }
+public static final Object pi = __init$pi();
+    private static Object __init$pi() { return 3.141592653589793; }
+public static final Object log2e = __init$log2e();
+    private static Object __init$log2e() { return 1.4426950408889634; }
+public static final Object log10e = __init$log10e();
+    private static Object __init$log10e() { return 0.4342944819032518; }
+public static final Object ln2 = __init$ln2();
+    private static Object __init$ln2() { return 0.6931471805599453; }
+public static final Object ln10 = __init$ln10();
+    private static Object __init$ln10() { return 2.302585092994046; }
+public static final Object fromString = __init$fromString();
+    private static Object __init$fromString() { return (java.util.function.Function<Object, Object>) (str_0_i0) -> { return ((java.util.function.Function<Object, Object>) (((java.util.function.Function<Object, Object>) (((java.util.function.Function<Object, Object>) (((java.util.function.Function<Object, Object>) (__M$Data_Number.fromStringImpl)).apply(str_0_i0))).apply(__M$Data_Number.isFinite))).apply(__M$Data_Maybe.Just))).apply(__M$Data_Maybe.__singleton$Nothing.value); }; }
+public static final Object e = __init$e();
+    private static Object __init$e() { return 2.718281828459045; }
 }

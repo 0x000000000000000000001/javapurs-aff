@@ -4,5 +4,6 @@ public class __M$Data_Boolean {
     };
 
 
-public static final Object otherwise = true;
+public static final Object otherwise = __init$otherwise();
+    private static Object __init$otherwise() { return true; }
 }

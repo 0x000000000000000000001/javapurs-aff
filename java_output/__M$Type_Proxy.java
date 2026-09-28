@@ -13,5 +13,6 @@ public static final class Proxy {
 public static final class __singleton$Proxy {
     public static final Proxy value = new Proxy();
 }
-public static final Object Proxy = __M$Type_Proxy.__singleton$Proxy.value;
+public static final Object Proxy = __init$Proxy();
+    private static Object __init$Proxy() { return __M$Type_Proxy.__singleton$Proxy.value; }
 }

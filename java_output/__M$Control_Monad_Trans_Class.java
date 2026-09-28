@@ -4,5 +4,6 @@ public class __M$Control_Monad_Trans_Class {
     };
 
 
-public static final Object lift = (java.util.function.Function<Object, Object>) (dict_0_i0) -> { return ((java.util.Map<String, Object>) dict_0_i0).get("lift"); };
+public static final Object lift = __init$lift();
+    private static Object __init$lift() { return (java.util.function.Function<Object, Object>) (dict_0_i0) -> { return ((java.util.Map<String, Object>) dict_0_i0).get("lift"); }; }
 }

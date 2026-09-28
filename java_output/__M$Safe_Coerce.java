@@ -4,5 +4,6 @@ public class __M$Safe_Coerce {
     };
 
 
-public static final Object coerce = (java.util.function.Function<Object, Object>) (_dollar___unused_0_i0) -> { return __M$Unsafe_Coerce.unsafeCoerce; };
+public static final Object coerce = __init$coerce();
+    private static Object __init$coerce() { return (java.util.function.Function<Object, Object>) (_dollar___unused_0_i0) -> { return __M$Unsafe_Coerce.unsafeCoerce; }; }
 }

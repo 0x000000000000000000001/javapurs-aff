@@ -4,5 +4,6 @@ public class __M$Control_Monad_Cont_Class {
     };
 
 
-public static final Object callCC = (java.util.function.Function<Object, Object>) (dict_0_i0) -> { return ((java.util.Map<String, Object>) dict_0_i0).get("callCC"); };
+public static final Object callCC = __init$callCC();
+    private static Object __init$callCC() { return (java.util.function.Function<Object, Object>) (dict_0_i0) -> { return ((java.util.Map<String, Object>) dict_0_i0).get("callCC"); }; }
 }

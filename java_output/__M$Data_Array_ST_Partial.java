@@ -18,6 +18,8 @@ public class __M$Data_Array_ST_Partial {
             };
 
 
-public static final Object poke = (java.util.function.Function<Object, Object>) (_dollar___unused_0_i0) -> { return ((java.util.function.Function<Object, Object>) (__M$Control_Monad_ST_Uncurried.runSTFn3)).apply(__M$Data_Array_ST_Partial.pokeImpl); };
-public static final Object peek = (java.util.function.Function<Object, Object>) (_dollar___unused_0_i0) -> { return ((java.util.function.Function<Object, Object>) (__M$Control_Monad_ST_Uncurried.runSTFn2)).apply(__M$Data_Array_ST_Partial.peekImpl); };
+public static final Object poke = __init$poke();
+    private static Object __init$poke() { return (java.util.function.Function<Object, Object>) (_dollar___unused_0_i0) -> { return ((java.util.function.Function<Object, Object>) (__M$Control_Monad_ST_Uncurried.runSTFn3)).apply(__M$Data_Array_ST_Partial.pokeImpl); }; }
+public static final Object peek = __init$peek();
+    private static Object __init$peek() { return (java.util.function.Function<Object, Object>) (_dollar___unused_0_i0) -> { return ((java.util.function.Function<Object, Object>) (__M$Control_Monad_ST_Uncurried.runSTFn2)).apply(__M$Data_Array_ST_Partial.peekImpl); }; }
 }

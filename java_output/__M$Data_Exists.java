@@ -4,6 +4,8 @@ public class __M$Data_Exists {
     };
 
 
-public static final Object runExists = __M$Unsafe_Coerce.unsafeCoerce;
-public static final Object mkExists = __M$Unsafe_Coerce.unsafeCoerce;
+public static final Object runExists = __init$runExists();
+    private static Object __init$runExists() { return __M$Unsafe_Coerce.unsafeCoerce; }
+public static final Object mkExists = __init$mkExists();
+    private static Object __init$mkExists() { return __M$Unsafe_Coerce.unsafeCoerce; }
 }

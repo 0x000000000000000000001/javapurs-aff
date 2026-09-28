@@ -4,5 +4,6 @@ public class __M$Control_Monad_ST_Global {
     };
 
 
-public static final Object toEffect = __M$Unsafe_Coerce.unsafeCoerce;
+public static final Object toEffect = __init$toEffect();
+    private static Object __init$toEffect() { return __M$Unsafe_Coerce.unsafeCoerce; }
 }

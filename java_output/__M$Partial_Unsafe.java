@@ -8,6 +8,8 @@ public class __M$Partial_Unsafe {
     };
 
 
-public static final Object unsafePartial = __M$Partial_Unsafe._unsafePartial;
-public static final Object unsafeCrashWith = (java.util.function.Function<Object, Object>) (msg_0_i0) -> { return ((java.util.function.Function<Object, Object>) (__M$Partial._crashWith)).apply(msg_0_i0); };
+public static final Object unsafePartial = __init$unsafePartial();
+    private static Object __init$unsafePartial() { return __M$Partial_Unsafe._unsafePartial; }
+public static final Object unsafeCrashWith = __init$unsafeCrashWith();
+    private static Object __init$unsafeCrashWith() { return (java.util.function.Function<Object, Object>) (msg_0_i0) -> { return ((java.util.function.Function<Object, Object>) (__M$Partial._crashWith)).apply(msg_0_i0); }; }
 }
