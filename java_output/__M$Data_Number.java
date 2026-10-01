@@ -60,7 +60,7 @@ public static final Object ln2 = __init$ln2();
 public static final Object ln10 = __init$ln10();
     private static Object __init$ln10() { return 2.302585092994046; }
 public static final Object fromString = __init$fromString();
-    private static Object __init$fromString() { return (java.util.function.Function<Object, Object>) (str_0_i0) -> { return ((java.util.function.Function<Object, Object>) (((java.util.function.Function<Object, Object>) (((java.util.function.Function<Object, Object>) (((java.util.function.Function<Object, Object>) (__M$Data_Number.fromStringImpl)).apply(str_0_i0))).apply(__M$Data_Number.isFinite))).apply(__M$Data_Maybe.Just))).apply(__M$Data_Maybe.__singleton$Nothing.value); }; }
+    private static Object __init$fromString() { return (java.util.function.Function<Object, Object>) (str_0$r0) -> { return ((java.util.function.Function<Object, Object>) (((java.util.function.Function<Object, Object>) (((java.util.function.Function<Object, Object>) (((java.util.function.Function<Object, Object>) (__M$Data_Number.fromStringImpl)).apply(str_0$r0))).apply(__M$Data_Number.isFinite))).apply(__M$Data_Maybe.Just))).apply(__M$Data_Maybe.__singleton$Nothing.value); }; }
 public static final Object e = __init$e();
     private static Object __init$e() { return 2.718281828459045; }
 }

@@ -95,7 +95,7 @@ public class __M$Data_Function_Uncurried {
 
 
 public static final Object runFn1 = __init$runFn1();
-    private static Object __init$runFn1() { return (java.util.function.Function<Object, Object>) (f_0_i0) -> { return f_0_i0; }; }
+    private static Object __init$runFn1() { return (java.util.function.Function<Object, Object>) (f_0$r0) -> { return f_0$r0; }; }
 public static final Object mkFn1 = __init$mkFn1();
-    private static Object __init$mkFn1() { return (java.util.function.Function<Object, Object>) (f_0_i0) -> { return f_0_i0; }; }
+    private static Object __init$mkFn1() { return (java.util.function.Function<Object, Object>) (f_0$r0) -> { return f_0$r0; }; }
 }
