@@ -118,6 +118,12 @@
                             if (effect instanceof java.util.function.Supplier) ((java.util.function.Supplier<Object>) effect).get();
                         } catch (Throwable ignored) { }
                     }
+                    // launchAff_ discards the fiber; report the error instead
+                    // of leaving the process parked on keepMainAlive.
+                    if (failed && completion.isEmpty()) {
+                        System.err.println("Uncaught Aff error: " + error);
+                        if (error instanceof Throwable) ((Throwable) error).printStackTrace();
+                    }
                 }
             });
             worker.setDaemon(true);
@@ -224,13 +230,20 @@
     public static Object _delay = (java.util.function.Function<Object, Object>) (right) ->
         (java.util.function.Function<Object, Object>) (ms) -> (AffRun) ctx -> {
             long duration = (long) ((Number) ms).doubleValue();
-            if (duration > 0) {
+            long remaining = duration;
+            // Sleep in slices so a cancelled branch (e.g. the loser of a race
+            // against a test timeout) stops promptly instead of running the
+            // whole duration.
+            while (remaining > 0) {
+                if (ctx != null) ctx.check();
+                long slice = Math.min(remaining, 25L);
                 try {
-                    Thread.sleep(duration);
+                    Thread.sleep(slice);
                 } catch (InterruptedException interrupted) {
                     Thread.currentThread().interrupt();
                     throw new AffCancelled(null);
                 }
+                remaining -= slice;
             }
             return __unit();
         };
@@ -351,30 +364,51 @@
             final Object[] results = new Object[2];
             final Throwable[] errors = new Throwable[2];
             final java.util.concurrent.atomic.AtomicBoolean decided = new java.util.concurrent.atomic.AtomicBoolean(false);
-            final java.util.concurrent.CountDownLatch latch = new java.util.concurrent.CountDownLatch(2);
+            final java.util.concurrent.CountDownLatch firstDone = new java.util.concurrent.CountDownLatch(1);
+            final java.util.concurrent.CountDownLatch all = new java.util.concurrent.CountDownLatch(2);
             final Object[] winner = new Object[1];
             RunContext child1 = new RunContext(null);
             RunContext child2 = new RunContext(null);
             Runnable first = () -> {
                 try {
                     Object value = runAffSync(asAff(aff1), child1);
+                    results[0] = value;
                     if (decided.compareAndSet(false, true)) { winner[0] = value; child2.cancel(null); }
                 } catch (Throwable thrown) {
                     errors[0] = thrown;
-                } finally { latch.countDown(); }
+                } finally {
+                    firstDone.countDown();
+                    all.countDown();
+                }
             };
             Runnable second = () -> {
                 try {
                     Object value = runAffSync(asAff(aff2), child2);
+                    results[1] = value;
                     if (decided.compareAndSet(false, true)) { winner[0] = value; child1.cancel(null); }
                 } catch (Throwable thrown) {
                     errors[1] = thrown;
-                } finally { latch.countDown(); }
+                } finally {
+                    firstDone.countDown();
+                    all.countDown();
+                }
             };
             Thread left = new Thread(first); Thread right = new Thread(second);
             left.setDaemon(true); right.setDaemon(true);
             left.start(); right.start();
-            try { latch.await(); } catch (InterruptedException interrupted) { Thread.currentThread().interrupt(); }
+            try {
+                firstDone.await();
+                if (winner[0] != null) {
+                    // A winner already cancelled the loser; wait only briefly so
+                    // a race against a test-timeout delay returns immediately
+                    // instead of blocking for the whole timeout.
+                    try { all.await(1, java.util.concurrent.TimeUnit.SECONDS); } catch (InterruptedException ignored) { }
+                    return winner[0];
+                }
+                all.await();
+            } catch (InterruptedException interrupted) {
+                Thread.currentThread().interrupt();
+            }
             if (winner[0] != null) return winner[0];
             Throwable failure = errors[0] != null ? errors[0] : errors[1];
             if (failure instanceof RuntimeException) throw (RuntimeException) failure;
