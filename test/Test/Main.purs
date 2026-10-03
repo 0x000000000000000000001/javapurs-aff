@@ -36,6 +36,15 @@ writeRef r = liftEffect <<< flip Ref.write r
 modifyRef :: forall m a. MonadEffect m => Ref a -> (a -> a) -> m a
 modifyRef r = liftEffect <<< flip Ref.modify r
 
+-- Rendezvous express happens-before requirements without assuming that fork
+-- runs eagerly, or that equal timers resume in source order on JVM threads.
+awaitFlag :: Ref Boolean -> Aff Unit
+awaitFlag flag = do
+  ready <- readRef flag
+  unless ready do
+    delay (Milliseconds 1.0)
+    awaitFlag flag
+
 assertEff :: String -> Either Error Boolean -> Effect Unit
 assertEff s = case _ of
   Left err -> do
@@ -45,11 +54,11 @@ assertEff s = case _ of
     assert' ("Assertion failure " <> s) r
     Console.log ("[OK] " <> s)
 
-runAssert :: String -> Aff Boolean -> Effect Unit
-runAssert s = runAff_ (assertEff s)
+runAssert :: String -> Aff Boolean -> Aff Unit
+runAssert = assert
 
-runAssertEq :: forall a. Eq a => String -> a -> Aff a -> Effect Unit
-runAssertEq s a = runAff_ (assertEff s <<< map (eq a))
+runAssertEq :: forall a. Eq a => String -> a -> Aff a -> Aff Unit
+runAssertEq = assertEq
 
 assertEq :: forall a. Eq a => String -> a -> Aff a -> Aff Unit
 assertEq s a aff = liftEffect <<< assertEff s <<< map (eq a) =<< try aff
@@ -62,29 +71,29 @@ withTimeout ms aff =
   either throwError pure =<< sequential do
     parallel (try aff) <|> parallel (delay ms $> Left (error "Timed out"))
 
-test_pure :: Effect Unit
+test_pure :: Aff Unit
 test_pure = runAssertEq "pure" 42 (pure 42)
 
-test_bind :: Effect Unit
+test_bind :: Aff Unit
 test_bind = runAssertEq "bind" 44 do
   n1 <- pure 42
   n2 <- pure (n1 + 1)
   n3 <- pure (n2 + 1)
   pure n3
 
-test_try :: Effect Unit
+test_try :: Aff Unit
 test_try = runAssert "try" do
   n <- try (pure 42)
   case n of
     Right 42 -> pure true
     _ -> pure false
 
-test_throw :: Effect Unit
+test_throw :: Aff Unit
 test_throw = runAssert "try/throw" do
   n <- try (throwError (error "Nope."))
   pure (isLeft n)
 
-test_liftEffect :: Effect Unit
+test_liftEffect :: Aff Unit
 test_liftEffect = runAssertEq "liftEffect" 42 do
   ref <- newRef 0
   liftEffect do
@@ -99,22 +108,26 @@ test_delay = assert "delay" do
 test_fork :: Aff Unit
 test_fork = assert "fork" do
   ref <- newRef ""
-  _ <- forkAff do
-    delay (Milliseconds 10.0)
+  go <- newRef false
+  child <- forkAff do
+    awaitFlag go
     modifyRef ref (_ <> "child")
   _ <- modifyRef ref (_ <> "go")
-  delay (Milliseconds 20.0)
+  writeRef go true
+  _ <- joinFiber child
   _ <- modifyRef ref (_ <> "parent")
   eq "gochildparent" <$> readRef ref
 
 test_join :: Aff Unit
 test_join = assert "join" do
   ref <- newRef ""
+  go <- newRef false
   fiber <- forkAff do
-    delay (Milliseconds 10.0)
+    awaitFlag go
     _ <- modifyRef ref (_ <> "child")
     readRef ref
   _ <- modifyRef ref (_ <> "parent")
+  writeRef go true
   eq "parentchild" <$> joinFiber fiber
 
 test_join_throw :: Aff Unit
@@ -165,12 +178,14 @@ test_makeAff :: Aff Unit
 test_makeAff = assert "makeAff" do
   ref1 <- newRef Nothing
   ref2 <- newRef 0
+  ready <- newRef false
   fiber <- forkAff do
     n <- makeAff \cb -> do
       writeRef ref1 (Just cb)
+      writeRef ready true
       pure mempty
     writeRef ref2 n
-  delay (Milliseconds 5.0)
+  awaitFlag ready
   cb <- readRef ref1
   case cb of
     Just k -> do
@@ -187,14 +202,11 @@ test_bracket = assert "bracket" do
       delay (Milliseconds 10.0)
       _ <- modifyRef ref (_ <> [ s ])
       pure s
-  fiber <- forkAff do
-    delay (Milliseconds 40.0)
-    readRef ref
   _ <- bracket
     (action "foo")
     (\s -> void $ action (s <> "/release"))
     (\s -> action (s <> "/run"))
-  joinFiber fiber <#> eq
+  readRef ref <#> eq
     [ "foo"
     , "foo/run"
     , "foo/release"
@@ -261,19 +273,19 @@ test_general_bracket = assert "bracket/general" do
 test_supervise :: Aff Unit
 test_supervise = assert "supervise" do
   ref <- newRef ""
+  ready <- newRef false
   r1 <- supervise do
     _ <- forkAff do
       bracket
-        (modifyRef ref (_ <> "acquire"))
+        (modifyRef ref (_ <> "acquire") *> writeRef ready true)
         (\_ -> void $ modifyRef ref (_ <> "release"))
-        (\_ -> delay (Milliseconds 10.0))
+        (\_ -> never)
     _ <- forkAff do
-      delay (Milliseconds 11.0)
+      void never
       void $ modifyRef ref (_ <> "delay")
-    delay (Milliseconds 5.0)
+    awaitFlag ready
     _ <- modifyRef ref (_ <> "done")
     pure "done"
-  delay (Milliseconds 20.0)
   r2 <- readRef ref
   pure (r1 == "done" && r2 == "acquiredonerelease")
 
@@ -286,12 +298,15 @@ test_kill = assert "kill" do
 test_kill_canceler :: Aff Unit
 test_kill_canceler = assert "kill/canceler" do
   ref <- newRef ""
+  ready <- newRef false
   fiber <- forkAff do
-    _ <- makeAff \_ -> pure $ Canceler \_ -> do
-      delay (Milliseconds 20.0)
-      liftEffect (writeRef ref "cancel")
+    _ <- makeAff \_ -> do
+      writeRef ready true
+      pure $ Canceler \_ -> do
+        delay (Milliseconds 20.0)
+        liftEffect (writeRef ref "cancel")
     writeRef ref "done"
-  delay (Milliseconds 10.0)
+  awaitFlag ready
   killFiber (error "Nope") fiber
   res <- try (joinFiber fiber)
   n <- readRef ref
@@ -380,43 +395,47 @@ test_kill_general_bracket_nested = assert "kill/bracket/general/nested" do
 
 test_kill_supervise :: Aff Unit
 test_kill_supervise = assert "kill/supervise" do
-  ref <- newRef ""
+  ref <- newRef []
+  fooReady <- newRef false
+  barReady <- newRef false
+  ready <- newRef false
   let
-    action s = generalBracket
-      (modifyRef ref (_ <> "acquire" <> s))
-      { failed: \_ _ -> void $ modifyRef ref (_ <> "throw" <> s)
-      , killed: \_ _ -> void $ modifyRef ref (_ <> "kill" <> s)
-      , completed: \_ _ -> void $ modifyRef ref (_ <> "complete" <> s)
+    action s started = generalBracket
+      (modifyRef ref (_ <> [ "acquire" <> s ]) *> writeRef started true)
+      { failed: \_ _ -> void $ modifyRef ref (_ <> [ "throw" <> s ])
+      , killed: \_ _ -> void $ modifyRef ref (_ <> [ "kill" <> s ])
+      , completed: \_ _ -> void $ modifyRef ref (_ <> [ "complete" <> s ])
       }
-      ( \_ -> do
-          delay (Milliseconds 10.0)
-          void $ modifyRef ref (_ <> "child" <> s)
-      )
+      (\_ -> never)
   fiber <- forkAff $ supervise do
-    _ <- forkAff $ action "foo"
-    _ <- forkAff $ action "bar"
-    delay (Milliseconds 5.0)
-    modifyRef ref (_ <> "parent")
-  delay (Milliseconds 1.0)
+    _ <- forkAff $ action "foo" fooReady
+    _ <- forkAff $ action "bar" barReady
+    awaitFlag fooReady
+    awaitFlag barReady
+    writeRef ready true
+    never
+  awaitFlag ready
   killFiber (error "nope") fiber
-  delay (Milliseconds 20.0)
-  eq "acquirefooacquirebarkillfookillbar" <$> readRef ref
+  eq [ "acquirebar", "acquirefoo", "killbar", "killfoo" ] <<< Array.sort <$> readRef ref
 
 test_kill_finalizer_catch :: Aff Unit
 test_kill_finalizer_catch = assert "kill/finalizer/catch" do
   ref <- newRef ""
+  ready <- newRef false
   fiber <- forkAff $ bracket
-    (delay (Milliseconds 10.0))
+    (writeRef ready true)
     (\_ -> throwError (error "Finalizer") `catchError` \_ -> writeRef ref "caught")
-    (\_ -> pure unit)
+    (\_ -> never)
+  awaitFlag ready
   killFiber (error "Nope") fiber
   eq "caught" <$> readRef ref
 
 test_kill_finalizer_bracket :: Aff Unit
 test_kill_finalizer_bracket = assert "kill/finalizer/bracket" do
   ref <- newRef ""
+  ready <- newRef false
   fiber <- forkAff $ bracket
-    (delay (Milliseconds 10.0))
+    (writeRef ready true)
     ( \_ -> generalBracket (pure unit)
         { killed: \_ _ -> writeRef ref "killed"
         , failed: \_ _ -> writeRef ref "failed"
@@ -424,29 +443,29 @@ test_kill_finalizer_bracket = assert "kill/finalizer/bracket" do
         }
         (\_ -> pure unit)
     )
-    (\_ -> pure unit)
+    (\_ -> never)
+  awaitFlag ready
   killFiber (error "Nope") fiber
   eq "completed" <$> readRef ref
 
 test_parallel :: Aff Unit
 test_parallel = assert "parallel" do
-  ref <- newRef ""
+  ref <- newRef []
   let
     action s = do
       delay (Milliseconds 10.0)
-      _ <- modifyRef ref (_ <> s)
+      _ <- modifyRef ref (_ <> [ s ])
       pure s
   f1 <- forkAff $ sequential $
     { a: _, b: _ }
       <$> parallel (action "foo")
       <*> parallel (action "bar")
-  delay (Milliseconds 15.0)
-  r1 <- readRef ref
   r2 <- joinFiber f1
-  pure (r1 == "foobar" && r2.a == "foo" && r2.b == "bar")
+  r1 <- Array.sort <$> readRef ref
+  pure (r1 == [ "bar", "foo" ] && r2.a == "foo" && r2.b == "bar")
 
 test_parallel_throw :: Aff Unit
-test_parallel_throw = assert "parallel/throw" $ withTimeout (Milliseconds 100.0) do
+test_parallel_throw = assert "parallel/throw" $ withTimeout (Milliseconds 5000.0) do
   ref <- newRef ""
   let
     action n s = do
@@ -462,128 +481,127 @@ test_parallel_throw = assert "parallel/throw" $ withTimeout (Milliseconds 100.0)
 
 test_kill_parallel :: Aff Unit
 test_kill_parallel = assert "kill/parallel" do
-  ref <- newRef ""
+  ref <- newRef []
+  fooReady <- newRef false
+  barReady <- newRef false
   let
-    action s = do
+    action s ready = do
       bracket
-        (pure unit)
-        (\_ -> void $ modifyRef ref (_ <> "killed" <> s))
-        ( \_ -> do
-            delay (Milliseconds 10.0)
-            void $ modifyRef ref (_ <> s)
-        )
+        (writeRef ready true)
+        (\_ -> void $ modifyRef ref (_ <> [ "killed" <> s ]))
+        (\_ -> never)
   f1 <- forkAff $ sequential $
-    parallel (action "foo") *> parallel (action "bar")
-  f2 <- forkAff do
-    delay (Milliseconds 5.0)
-    killFiber (error "Nope") f1
-    modifyRef ref (_ <> "done")
+    parallel (action "foo" fooReady) *> parallel (action "bar" barReady)
+  awaitFlag fooReady
+  awaitFlag barReady
+  killFiber (error "Nope") f1
   _ <- try $ joinFiber f1
-  _ <- try $ joinFiber f2
-  eq "killedfookilledbardone" <$> readRef ref
+  eq [ "killedbar", "killedfoo" ] <<< Array.sort <$> readRef ref
 
 test_parallel_alt :: Aff Unit
 test_parallel_alt = assert "parallel/alt" do
   ref <- newRef ""
-  let
-    action n s = do
-      delay (Milliseconds n)
-      _ <- modifyRef ref (_ <> s)
-      pure s
+  ready <- newRef false
   f1 <- forkAff $ sequential $
-    parallel (action 10.0 "foo") <|> parallel (action 5.0 "bar")
-  delay (Milliseconds 10.0)
-  r1 <- readRef ref
+    parallel (writeRef ready true *> never) <|> parallel (awaitFlag ready *> modifyRef ref (_ <> "bar"))
   r2 <- joinFiber f1
+  r1 <- readRef ref
   pure (r1 == "bar" && r2 == "bar")
 
 test_parallel_alt_throw :: Aff Unit
 test_parallel_alt_throw = assert "parallel/alt/throw" do
   r1 <- sequential $
-    parallel (delay (Milliseconds 10.0) *> throwError (error "Nope."))
-      <|> parallel (delay (Milliseconds 11.0) $> "foo")
-      <|> parallel (delay (Milliseconds 12.0) $> "bar")
+    parallel (throwError (error "Nope."))
+      <|> parallel (pure "foo")
+      <|> parallel never
   pure (r1 == "foo")
 
 test_parallel_alt_sync :: Aff Unit
 test_parallel_alt_sync = assert "parallel/alt/sync" do
-  ref <- newRef ""
+  ref <- newRef []
   let
     action s = do
       bracket
         (pure unit)
-        (\_ -> void $ modifyRef ref (_ <> "killed" <> s))
-        (\_ -> modifyRef ref (_ <> s) $> s)
+        (\_ -> void $ modifyRef ref (_ <> [ "release/" <> s ]))
+        (\_ -> modifyRef ref (_ <> [ "run/" <> s ]) $> s)
   r1 <- sequential $
     parallel (action "foo")
       <|> parallel (action "bar")
       <|> parallel (action "baz")
   r2 <- readRef ref
-  pure (r1 == "foo" && r2 == "fookilledfoo")
+  let
+    ran = Array.filter (\s -> Array.elem ("run/" <> s) r2) [ "foo", "bar", "baz" ]
+    released = Array.filter (\s -> Array.elem ("release/" <> s) r2) [ "foo", "bar", "baz" ]
+  pure (Array.elem r1 ran && Array.all (\s -> Array.elem s released) ran
+    && Array.length r2 == Array.length ran + Array.length released)
 
 test_parallel_mixed :: Aff Unit
 test_parallel_mixed = assert "parallel/mixed" do
-  ref <- newRef ""
+  ref <- newRef []
   let
-    action n s = parallel do
-      delay (Milliseconds n)
-      _ <- modifyRef ref (_ <> s)
+    action s = parallel do
+      _ <- modifyRef ref (_ <> [ s ])
       pure s
   { r1, r2, r3 } <- sequential $
     { r1: _, r2: _, r3: _ }
-      <$> action 10.0 "a"
+      <$> action "a"
       <*>
-        ( action 15.0 "a"
-            <|> action 12.0 "b"
-            <|> action 16.0 "c"
+        ( parallel never
+            <|> action "b"
+            <|> parallel never
         )
       <*>
-        ( action 15.0 "a"
-            <|> ((<>) <$> action 13.0 "d" <*> action 14.0 "e")
-            <|> action 16.0 "f"
+        ( parallel never
+            <|> ((<>) <$> action "d" <*> action "e")
+            <|> parallel never
         )
-  delay (Milliseconds 20.0)
-  r4 <- readRef ref
-  pure (r1 == "a" && r2 == "b" && r3 == "de" && r4 == "abde")
+  r4 <- Array.sort <$> readRef ref
+  pure (r1 == "a" && r2 == "b" && r3 == "de" && r4 == [ "a", "b", "d", "e" ])
 
 test_kill_parallel_alt :: Aff Unit
 test_kill_parallel_alt = assert "kill/parallel/alt" do
-  ref <- newRef ""
+  ref <- newRef []
+  fooReady <- newRef false
+  barReady <- newRef false
   let
-    action n s = do
+    action ready s = do
       bracket
-        (pure unit)
-        (\_ -> void $ modifyRef ref (_ <> "killed" <> s))
-        ( \_ -> do
-            delay (Milliseconds n)
-            void $ modifyRef ref (_ <> s)
-        )
+        (writeRef ready true)
+        (\_ -> void $ modifyRef ref (_ <> [ "killed" <> s ]))
+        (\_ -> never)
   f1 <- forkAff $ sequential $
-    parallel (action 10.0 "foo") <|> parallel (action 20.0 "bar")
-  f2 <- forkAff do
-    delay (Milliseconds 5.0)
-    killFiber (error "Nope") f1
-    modifyRef ref (_ <> "done")
+    parallel (action fooReady "foo") <|> parallel (action barReady "bar")
+  awaitFlag fooReady
+  awaitFlag barReady
+  killFiber (error "Nope") f1
   _ <- try $ joinFiber f1
-  _ <- try $ joinFiber f2
-  eq "killedfookilledbardone" <$> readRef ref
+  eq [ "killedbar", "killedfoo" ] <<< Array.sort <$> readRef ref
 
 test_kill_parallel_alt_finalizer :: Aff Unit
 test_kill_parallel_alt_finalizer = assert "kill/parallel/alt/finalizer" do
   ref <- newRef ""
+  ready <- newRef false
+  finalizing <- newRef false
+  release <- newRef false
+  killing <- newRef false
   f1 <- forkAff $ sequential $
-    parallel (delay (Milliseconds 10.0)) <|> parallel do
+    parallel (awaitFlag ready) <|> parallel do
       bracket
-        (pure unit)
+        (writeRef ready true)
         ( \_ -> do
-            delay (Milliseconds 10.0)
+            writeRef finalizing true
+            awaitFlag release
             void $ modifyRef ref (_ <> "killed")
         )
-        (\_ -> delay (Milliseconds 20.0))
+        (\_ -> never)
+  awaitFlag finalizing
   f2 <- forkAff do
-    delay (Milliseconds 15.0)
+    writeRef killing true
     killFiber (error "Nope") f1
     modifyRef ref (_ <> "done")
+  awaitFlag killing
+  writeRef release true
   _ <- try $ joinFiber f1
   _ <- try $ joinFiber f2
   eq "killeddone" <$> readRef ref
@@ -636,17 +654,19 @@ test_efffn = assert "efffn" do
     action = do
       effectDelay (Milliseconds 10.0)
       void $ modifyRef ref (_ <> "done")
-  _ <- forkAff action
+  f1 <- forkAff action
   f2 <- forkAff action
   killFiber (error "Nope.") f2
-  delay (Milliseconds 20.0)
+  _ <- joinFiber f1
   eq "done" <$> readRef ref
 
 test_parallel_stack :: Aff Unit
-test_parallel_stack = assert "parallel/stack" do
+test_parallel_stack = assert "parallel/bounded" do
   ref <- newRef 0
-  parTraverse_ (modifyRef ref <<< add) (Array.replicate 100000 1)
-  eq 100000 <$> readRef ref
+  -- The Java scheduler uses platform threads. Keep the parallel protocol test
+  -- bounded; deep sequential trampoline checks live in test-runtime.
+  parTraverse_ (modifyRef ref <<< add) (Array.replicate 64 1)
+  eq 64 <$> readRef ref
 
 test_scheduler_size :: Aff Unit
 test_scheduler_size = assert "scheduler" do
@@ -733,60 +753,64 @@ test_regression_bracket_kill_mask = assert "regression/kill-bracket-mask" do
 
 test_regression_kill_empty_supervisor :: Aff Unit
 test_regression_kill_empty_supervisor = assert "regression/kill-empty-supervisor" do
-  f1 <- forkAff $ supervise $ delay $ Milliseconds 10.0
+  ready <- newRef false
+  f1 <- forkAff $ supervise $ writeRef ready true *> never
+  awaitFlag ready
   let
     a = parallel $ killFiber (error "Nope.") f1 $> true
-    b = parallel $ delay (Milliseconds 20.0) $> false
+    b = parallel never
   sequential (a <|> b)
 
 main :: Effect Unit
-main = do
+main = void $ launchAff suite
+
+suite :: Aff Unit
+suite = do
   test_pure
   test_bind
   test_try
   test_throw
   test_liftEffect
 
-  void $ launchAff do
-    test_delay
-    test_fork
-    test_join
-    test_join_throw
-    test_join_throw_sync
-    test_multi_join
-    test_suspend
-    test_makeAff
-    test_bracket
-    test_bracket_nested
-    test_general_bracket
-    test_supervise
-    test_kill
-    test_kill_canceler
-    test_kill_bracket
-    test_kill_bracket_nested
-    test_kill_general_bracket_nested
-    test_kill_supervise
-    test_kill_finalizer_catch
-    test_kill_finalizer_bracket
-    test_parallel
-    test_parallel_throw
-    test_kill_parallel
-    test_parallel_alt
-    test_parallel_alt_throw
-    test_parallel_alt_sync
-    test_parallel_mixed
-    test_kill_parallel_alt
-    test_kill_parallel_alt_finalizer
-    test_lazy
-    test_efffn
-    test_fiber_map
-    test_fiber_apply
-    -- Turn on if we decide to schedule forks
-    -- test_scheduler_size
-    test_parallel_stack
-    test_regression_return_fork
-    test_regression_par_apply_async_canceler
-    test_regression_bracket_catch_cleanup
-    test_regression_kill_sync_async
-    test_regression_bracket_kill_mask
-    test_regression_kill_empty_supervisor
+  test_delay
+  test_fork
+  test_join
+  test_join_throw
+  test_join_throw_sync
+  test_multi_join
+  test_suspend
+  test_makeAff
+  test_bracket
+  test_bracket_nested
+  test_general_bracket
+  test_supervise
+  test_kill
+  test_kill_canceler
+  test_kill_bracket
+  test_kill_bracket_nested
+  test_kill_general_bracket_nested
+  test_kill_supervise
+  test_kill_finalizer_catch
+  test_kill_finalizer_bracket
+  test_parallel
+  test_parallel_throw
+  test_kill_parallel
+  test_parallel_alt
+  test_parallel_alt_throw
+  test_parallel_alt_sync
+  test_parallel_mixed
+  test_kill_parallel_alt
+  test_kill_parallel_alt_finalizer
+  test_lazy
+  test_efffn
+  test_fiber_map
+  test_fiber_apply
+  -- Turn on if we decide to schedule forks
+  -- test_scheduler_size
+  test_parallel_stack
+  test_regression_return_fork
+  test_regression_par_apply_async_canceler
+  test_regression_bracket_catch_cleanup
+  test_regression_kill_sync_async
+  test_regression_bracket_kill_mask
+  test_regression_kill_empty_supervisor

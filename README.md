@@ -19,6 +19,13 @@ Run `./bin/test-runtime` for deterministic Java protocol checks (Node and a JDK)
 or `../javapurs-js-promise-aff/bin/test-runtime` for real PureScript API integration
 with the built backend. Both commands report asynchronous failures as failures.
 
+`./bin/test` runs the 45-check PureScript suite in an isolated workspace through
+the sibling compiler. It awaits the supervised suite and cleanup, checks a final
+marker, and verifies delayed failures, rejection, timeout and premature exit.
+Parallel tests use rendezvous and a bounded 64-branch workload for platform
+threads. See the [port-suite recipe](../javapurs/docs/testing.md#suites-asynchrones-des-ports)
+for prerequisites, timeouts and per-phase logs.
+
 ## Installation
 
 Install `aff` with [Spago](https://github.com/purescript/spago):
