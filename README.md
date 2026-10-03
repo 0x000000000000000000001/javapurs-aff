@@ -7,6 +7,18 @@
 
 An asynchronous effect monad and threading model for PureScript.
 
+## Java port
+
+The Java runtime uses daemon platform threads, a bind/map trampoline, removable
+fiber observers and cooperative cancellation. Acquisition and cleanup are masked;
+supervision covers the fork subtree and parallel combinators await losing-branch
+cleanup. See the [Java FFI/runtime contracts](../javapurs/docs/ffi-runtime.md#aff)
+for state ownership, callback lifetimes, exceptions and JVM lifecycle.
+
+Run `./bin/test-runtime` for deterministic Java protocol checks (Node and a JDK),
+or `../javapurs-js-promise-aff/bin/test-runtime` for real PureScript API integration
+with the built backend. Both commands report asynchronous failures as failures.
+
 ## Installation
 
 Install `aff` with [Spago](https://github.com/purescript/spago):
