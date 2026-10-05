@@ -16,3 +16,6 @@ package-lock.json
 java_output/
 classes/
 .spago/
+*.class
+*.java.bak
+.DS_Store
