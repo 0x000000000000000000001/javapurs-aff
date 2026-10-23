@@ -1,5 +1,9 @@
 # Aff
 
+Java port of the PureScript `aff` package. See the
+[port maintenance guide](../javapurs/docs/port-maintenance.md)
+for source layout, local dependency selection and JVM validation.
+
 [![CI](https://github.com/purescript-contrib/purescript-aff/workflows/CI/badge.svg?branch=main)](https://github.com/purescript-contrib/purescript-aff/actions?query=workflow%3ACI+branch%3Amain)
 [![Release](https://img.shields.io/github/release/purescript-contrib/purescript-aff.svg)](https://github.com/purescript-contrib/purescript-aff/releases)
 [![Pursuit](https://pursuit.purescript.org/packages/purescript-aff/badge)](https://pursuit.purescript.org/packages/purescript-aff)
